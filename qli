@@ -1,0 +1,18 @@
+#!/bin/bash
+
+## quicklook for the internetz
+
+[ -z $1 ] && echo "Missing URL parameter" && exit 1
+
+url=$1
+tmpfolder=${2:-~/Downloads}
+
+cd $tmpfolder
+filename=$(md5 <<< "$url")
+extension=${url##*.}
+
+if [ ! -f $filename.$extension ] ; then
+  curl "$url" -o "$filename.$extension"
+fi
+
+qlmanage -d 0 -p "$filename.$extension" &> /dev/null

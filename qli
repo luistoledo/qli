@@ -1,18 +1,53 @@
 #!/bin/bash
 
+##
 ## quicklook for the internetz
+##
 
-[ -z $1 ] && echo "Missing URL parameter" && exit 1
-
-url=$1
-tmpfolder=${2:-~/Downloads}
-
-cd $tmpfolder
-filename=$(md5 <<< "$url")
-extension=${url##*.}
-
-if [ ! -f $filename.$extension ] ; then
-  curl "$url" -o "$filename.$extension"
+if [ -z $1 ] ; then
+ echo 'Usage: qli <url> [temp_folder]'
+ exit 1
 fi
 
-qlmanage -d 0 -p "$filename.$extension" &> /dev/null
+url=$1
+extension=${url##*.}
+filename=$(md5 <<< "$url")
+file=$filename.$extension
+
+# optional parameter for custom temporal folder or the system temp folder
+# looks buggy
+tmpfolder=$2
+if [ -z $tmpfolder ] ; then
+  tmpfolder=`mktemp -d ${TMPDIR:-/tmp}/qli &> /dev/null`
+  [ $? -ne 0 ] && tmpfolder=${TMPDIR:-/tmp}/qli # if mktemp find an existent temp folder, use an existent one
+fi
+cd $tmpfolder
+
+# Spinner code from:
+# http://fitnr.com/showing-a-bash-spinner.html
+spinner()
+{
+  local pid=$1
+  local delay=0.1
+  local spinstr='|/-\'
+  while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
+    local temp=${spinstr#?}
+    printf " [%c]  " "$spinstr"
+    local spinstr=$temp${spinstr%"$temp"}
+    sleep $delay
+    printf "\b\b\b\b\b\b"
+  done
+  printf "    \b\b\b\b"
+}
+
+if [ ! -f $file ] ; then
+  # curl --head $url &> /dev/null
+  # [ $? -ne 0 ] && echo "URL retrive error" && exit 1
+  
+  curl "$url" -s -o "$file" & spinner $!
+  [ ! -f $file ] && echo "URL retrive nothing or error" && exit 1
+fi
+
+qlmanage -d 0 -p "$file" &> /dev/null
+
+exit 0

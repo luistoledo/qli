@@ -20,7 +20,7 @@ its prepared to be used inside your own scripts/stuff
 
 or
 
-- link this repo to your local bin folder: ``ln -s qli /usr/local/bin/``
+- link this repo to your local bin folder: ``ln -s fullpath/qli /usr/local/bin/``
 
 and
 - give execution permisions: ``chmod +x qli``

@@ -4,24 +4,6 @@
 ## quicklook for the internetz
 ##
 
-if [ -z $1 ] ; then
- echo 'Usage: qli <url> [temp_folder]'
- exit 1
-fi
-
-url=$1
-extension=${url##*.}
-filename=$(md5 <<< "$url")
-file=$filename.$extension
-
-# optional parameter for custom temporal folder or the system temp folder
-# looks buggy
-tmpfolder=$2
-if [ -z $tmpfolder ] ; then
-  tmpfolder=`mktemp -d ${TMPDIR:-/tmp}/qli &> /dev/null`
-  [ $? -ne 0 ] && tmpfolder=${TMPDIR:-/tmp}/qli # if mktemp find an existent temp folder, use an existent one
-fi
-cd $tmpfolder
 
 # Spinner code from:
 # http://fitnr.com/showing-a-bash-spinner.html
@@ -40,13 +22,59 @@ spinner()
   printf "    \b\b\b\b"
 }
 
-if [ ! -f $file ] ; then
-  # curl --head $url &> /dev/null
-  # [ $? -ne 0 ] && echo "URL retrive error" && exit 1
-  
-  curl "$url" -s -o "$file" & spinner $!
-  [ ! -f $file ] && echo "URL retrive nothing or error" && exit 1
+downloadfile()
+{
+  # optional parameter for custom temporal folder or the system temp folder
+  # looks buggy
+  if [ -z $tmpfolder ] ; then
+    tmpfolder=`mktemp -d ${TMPDIR:-/tmp}/qli &> /dev/null`
+    [ $? -ne 0 ] && tmpfolder=${TMPDIR:-/tmp}/qli # if mktemp find an existent temp folder, use an existent one
+    cd $tmpfolder
+  fi
+
+  url=$input
+  extension=${url##*.}
+  filename=$(md5 <<< "$url")
+  file=$filename.$extension
+
+  if [ ! -f $file ] ; then
+    # curl --head $url &> /dev/null
+    # [ $? -ne 0 ] && echo "URL retrive error" && exit 1
+    
+    curl "$url" -s -o "$file" & spinner $!
+    [ ! -f $file ] && echo "URL retrive nothing or error" && exit 1
+  fi
+}
+
+uselocalfile()
+{
+  file=$input
+  if [ ! -f $file ]; then
+    file=$(pwd)/$file
+    if [ ! -f $file ]; then
+      echo "File not found!"
+      exit 1
+    fi
+  fi
+}
+
+
+if [ -z $1 ] ; then
+ echo 'Usage: qli <url|file> [temp_folder]'
+ exit 1
 fi
+
+input=$1
+tmpfolder=$2
+
+
+regex='(https?|ftp|file)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
+if [[ $input =~ $regex ]]; then
+  downloadfile
+else
+  uselocalfile
+fi
+
 
 qlmanage -d 0 -p "$file" &> /dev/null
 

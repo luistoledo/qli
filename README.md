@@ -1,21 +1,28 @@
 # qli
-terminal quicklook for the internetz
+a terminal quicklook for the internetz (and locals)
 
-a script adding URL support to osx's quicklook launcher [qlmanager]
+*qli* add URL support to osx's quicklook launcher [qlmanager]
 
-prepared to be used inside your own scripts/stuff
+its prepared to be used inside your own scripts/stuff
 
 ## features
-- download file from url into a temp directory
-- if file already exist, doesn't download it again
-- shows a cursor spinner while downloading [1]
-- display downloadings errors, and exits with error code 1
+- preview local files
+- when using url: caches the file into a temp directory(can be overrided)
+- display downloadings errors
 
 ## usage
-``qli https://upload.wikimedia.org/wikipedia/commons/7/78/Cat_fall_150x300_6fps.gif`
+`qli https://upload.wikimedia.org/wikipedia/commons/7/78/Cat_fall_150x300_6fps.gif`
+
+`qli mewmew.mp3`
 
 ## system wide installation
 - copy qli script into your local bin folder: ``cp qli /usr/local/bin/``
+
+or
+
+- link this repo to your local bin folder: ``ln -s qli /usr/local/bin/``
+
+and
 - give execution permisions: ``chmod +x qli``
 
-[1]: http://fitnr.com/showing-a-bash-spinner.html
+[from_fitnr]: http://fitnr.com/showing-a-bash-spinner.html

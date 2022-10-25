@@ -23,6 +23,6 @@ or
 - link this repo to your local bin folder: ``ln -s fullpath/qli /usr/local/bin/``
 
 and
-- give execution permisions: ``chmod +x qli``
+- give execution permisions: ``chmod u+x qli``
 
 [from_fitnr]: http://fitnr.com/showing-a-bash-spinner.html
